@@ -79,7 +79,7 @@ class LocationPage < Page
     tag.locals.location.distance
   end
   
-  [:full_address, :group, :website_url, :name, :lat, :lng].each do |method|
+  [:full_address, :group, :website_url, :name, :lat, :lng, :phone].each do |method|
     desc %{ returns the #{method} attribute of the Location}
     tag("#{method.to_s}") do |tag|
       tag.locals.location.send(method)

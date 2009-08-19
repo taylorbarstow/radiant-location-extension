@@ -27,6 +27,13 @@
               %td.field
                 = text_field "location", "full_address", :class => 'textbox', :maxlength => 100 
               %td.help Required. Full street address.  Example: "8 Bowers Rd, Derry, NH 03038"
+          - form.edit_phone do
+            %tr
+              %th.label
+                %label{:for=>"location_phone"} Phone #
+              %td.field
+                = text_field "location", "phone", :class => 'textbox', :maxlength => 100
+              %td.help Phone number for customers to call (for store hours, etc).
       - render_region :form_bottom do |form_bottom|
         - form_bottom.edit_timestamp do
           = updated_stamp @location  
