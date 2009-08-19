@@ -80,6 +80,11 @@ class LocationPage < Page
       tag.locals.location.send(method)
     end
   end
+  
+  desc %{Returns "lat,lng" for origin of search, if available}
+  tag 'location:origin' do |tag|
+    @origin_geo.ll unless @origin_geo.nil?
+  end
 
   desc %{Allows you to use page tags (such as <r:slug>, <r:title>, etc.) for the page associated with the location.}
   tag "location:page" do |tag|
@@ -105,6 +110,23 @@ class LocationPage < Page
   #   #content = '<script type="text/javascript" src="http://www.google.com/jsapi?key=#{Radiant::Config['geokit.geocoders.google']}"></script>'
   #   
   # end
+  
+  tag 'location:zipcode_field' do |tag|
+    "<input type='text' name='zipcode' value='#{@zipcode}' size='5' />"
+  end
+  
+  tag 'location:state_field' do |tag|
+    options = State::NAMES.map do |long,short| 
+      selected = " selected='selected'" if long == @state
+      "<option value='#{long}'#{selected}>#{short}</option>"
+    end
+    "<select name='state'><option value=''></option>#{options.join}</select>"
+  end
+  
+  tag 'location:directions_link' do |tag|
+    loc = tag.locals.location
+    "<a class='directions' target='_blank' href='http://maps.google.com/maps?f=d&daddr=#{loc.full_address}'>Get directions &raquo;</a>"
+  end
 
   def process(request,response)
     # Parameters
@@ -115,7 +137,7 @@ class LocationPage < Page
     # units = the units to apply to the distance (km or miles)
     # count = the number of results to return
     # offset = The result number to start with
-
+    
     @origin   = request.parameters["origin"]
     @lat      = request.parameters["lat"]
     @lng      = request.parameters["lng"]
@@ -123,6 +145,10 @@ class LocationPage < Page
     @units    = request.parameters["units"]
     @count    = request.parameters["count"]
     @offset   = request.parameters["offset"]
+    
+    @zipcode = request.parameters['zipcode']
+    @state = request.parameters['state']
+    @origin = @zipcode.blank? ? @state : @zipcode
 
     if @lat.blank? || @lng.blank?
       unless @origin.blank?
@@ -159,6 +185,14 @@ class LocationPage < Page
   def cache?
      false
    end
+   
+  def zipcode
+    @zipcode
+  end
+  
+  def state
+    @state
+  end
    
   private
   def each_location(tag, first=0, last=-1)
