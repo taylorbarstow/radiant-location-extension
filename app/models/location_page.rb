@@ -28,7 +28,12 @@ class LocationPage < Page
       @options[:conditions] = {:group => tag.attr[group]}
     end
 
-    tag.locals.locations = Location.find(:all, @options)
+    # in megafood, we only want to find locations if origin is present
+    if @origin.blank?
+      tag.locals.locations = []
+    else
+      tag.locals.locations = Location.find(:all, @options)
+    end
     tag.expand
   end
 
@@ -127,6 +132,14 @@ class LocationPage < Page
     loc = tag.locals.location
     "<a class='directions' target='_blank' href='http://maps.google.com/maps?f=d&daddr=#{loc.full_address}'>Get directions &raquo;</a>"
   end
+  
+  tag 'location:if_locations' do |tag|
+    tag.expand unless tag.locals.locations.blank?
+  end
+  
+  tag 'location:unless_locations' do |tag|
+    tag.expand if tag.locals.locations.blank?
+  end
 
   def process(request,response)
     # Parameters
@@ -146,9 +159,14 @@ class LocationPage < Page
     @count    = request.parameters["count"]
     @offset   = request.parameters["offset"]
     
+    # megafood
     @zipcode = request.parameters['zipcode']
     @state = request.parameters['state']
     @origin = @zipcode.blank? ? @state : @zipcode
+    
+    # more megafoood
+    @count = 25
+    @distance = 25
 
     if @lat.blank? || @lng.blank?
       unless @origin.blank?
