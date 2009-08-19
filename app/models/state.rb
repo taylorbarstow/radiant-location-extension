@@ -52,4 +52,23 @@ class State
     [ "Wisconsin", "WI" ], 
     [ "Wyoming", "WY" ]
   ]
+  
+  def self.[](sym)
+    to_hash[sym.to_s.downcase]
+  end
+  
+  def self.to_hash
+    @hsh = build_hash
+  end
+  
+private
+
+  def self.build_hash
+    returning (h = Hash.new) do 
+      NAMES.each do |long, short| 
+        h[long.downcase] = short
+        h[short.downcase] = long
+      end
+    end
+  end
 end
