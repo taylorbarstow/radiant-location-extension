@@ -3,7 +3,7 @@ class Location < ActiveRecord::Base
   belongs_to :created_by, :class_name => 'User'
   belongs_to :updated_by, :class_name => 'User'
 
-  acts_as_mappable :default_units => :kms
+  acts_as_mappable :default_units => :miles
   before_validation :geocode_address
   private
   def geocode_address

@@ -161,12 +161,10 @@ class LocationPage < Page
     
     # megafood
     @zipcode = request.parameters['zipcode']
-    @state = request.parameters['state']
-    @origin = @zipcode.blank? ? @state : @zipcode
-    
-    # more megafoood
-    @count = 25
-    @distance = 25
+    @state   = request.parameters['state']
+    @origin   ||= @zipcode.blank? ? @state : @zipcode
+    @count    ||= 25
+    @distance ||= 25
 
     if @lat.blank? || @lng.blank?
       unless @origin.blank?
