@@ -29,7 +29,7 @@ class LocationPage < Page
     end
 
     # in megafood, we only want to find locations if origin is present
-    if @origin.blank? and zipcode.blank? and @state.blank?
+    if @origin.blank?
       tag.locals.locations = []
     else
       tag.locals.locations = Location.find(:all, @options)
@@ -120,12 +120,8 @@ class LocationPage < Page
     "<input type='text' name='zipcode' value='#{@zipcode}' size='5' />"
   end
   
-  tag 'location:state_field' do |tag|
-    options = State::NAMES.map do |long,short| 
-      selected = " selected='selected'" if long == @state
-      "<option value='#{long}'#{selected}>#{short}</option>"
-    end
-    "<select name='state'><option value=''></option>#{options.join}</select>"
+  tag 'location:cityst_field' do |tag|
+    "<input type='text' name='cityst' value='#{@cityst}' size='15' />"
   end
   
   tag 'location:directions_link' do |tag|
@@ -161,21 +157,11 @@ class LocationPage < Page
     
     # megafood
     @zipcode = request.parameters['zipcode']
-    @state   = request.parameters['state']
-    @origin   ||= @zipcode
-    @count    ||= 10
+    @cityst = request.parameters['cityst']
+    @origin = @zipcode if @origin.blank?
+    @origin = @cityst if @origin.blank?
+    @count    ||= 20
     @distance ||= 25
-    
-    @options = {}
-    
-    if @origin.blank? and !@state.blank?
-      state_short = @state.length > 2 ? State[@state] : @state
-      state_long = @state.length > 2 ? @state : State[@state]
-      @origin = state_long
-      @distance = nil
-      @count = nil
-      @options[:conditions] = ['full_address like ?', "%, #{state_short} %"]
-    end
 
     if @lat.blank? || @lng.blank?
       unless @origin.blank?
@@ -189,6 +175,7 @@ class LocationPage < Page
       @origin_geo = [@lat.to_f, @lng.to_f]
     end
 
+    @options = {}
     unless @origin_geo.nil?
       @options[:origin] = @origin_geo
       @options[:order] = "distance"

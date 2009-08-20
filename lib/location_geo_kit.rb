@@ -2,7 +2,7 @@
   GeoKit.class_eval <<-EOS, __FILE__, __LINE__
   def self.#{sym}
 #    puts "My #{sym.to_s}"
-    Radiant::Config["geokit.#{sym.to_s}"].to_sym
+    (Radiant::Config["geokit.#{sym.to_s}"] || 'foo').to_sym
   end
 
   def self.#{sym}=(obj)
@@ -30,7 +30,7 @@ end
 GeoKit::Geocoders.class_eval do
   def self.provider_order
     #    puts Radiant::Config["geokit.geocoders.provider_order"]
-    Radiant::Config["geokit.geocoders.provider_order"].split(" ").map { |s| s.to_sym }
+    (Radiant::Config["geokit.geocoders.provider_order"] || '').split(" ").map { |s| s.to_sym }
   end
   def self.timeout
     val = Radiant::Config["geokit.geocoders.timeout"]
